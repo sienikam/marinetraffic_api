@@ -48,7 +48,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         XMLParser test = new XMLParser();
-        test.filename="/data/data/com.example.sienikam.myapplication/demo.xml";
+        test.filename="/data/data/com.example.sienikam.myapplication/ships.xml";
 
         Bundle map_type = getIntent().getExtras();
         Log.e("map_type", map_type.getString("map_type"));

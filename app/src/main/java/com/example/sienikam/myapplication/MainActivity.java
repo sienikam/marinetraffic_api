@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void generate_ships_list() {
         final XMLParser test = new XMLParser();
-        test.filename="/data/data/com.example.sienikam.myapplication/demo.xml";
+        test.filename="/data/data/com.example.sienikam.myapplication/ships.xml";
 
         mainListView = (ListView) findViewById( R.id.listView );
 
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 File SDCardRoot = Environment.getDataDirectory();
                 //create a new file, specifying the path, and the filename
                 //which we want to save the file as.
-                File file = new File(SDCardRoot,"/data/com.example.sienikam.myapplication/demo.xml");
+                File file = new File(SDCardRoot,"/data/com.example.sienikam.myapplication/ships.xml");
 
                 //this will be used to write the downloaded data into the file we created
                 FileOutputStream fileOutput = new FileOutputStream(file);
