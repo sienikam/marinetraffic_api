@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
 
         DownloadXML marinetraffic = new DownloadXML();
-        marinetraffic.url_xml="http://arch.edu.pl/~k3/statki.xml";
+        marinetraffic.url_xml="http://arch.edu.pl/~k3/statki.xml"; //url
         marinetraffic.execute();
 
         Button mapbutton = (Button) findViewById(R.id.button_map);
