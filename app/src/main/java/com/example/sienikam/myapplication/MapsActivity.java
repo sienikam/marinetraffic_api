@@ -3,12 +3,16 @@ package com.example.sienikam.myapplication;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.w3c.dom.Element;
@@ -44,19 +48,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         XMLParser test = new XMLParser();
-        test.xml_data_url="http://arch.edu.pl/~k3/statki.xml";
-        Log.e("ship counter", String.valueOf(test.getXmlFromUrl(test.xml_data_url).getLength()));
+        test.filename="/data/data/com.example.sienikam.myapplication/demo.xml";
 
-        for(int i=0; i < test.getXmlFromUrl(test.xml_data_url).getLength();i++) {
-            Element element = (Element) test.getXmlFromUrl(test.xml_data_url).item(i);
-            String SHIPNAME = element.getAttribute("SHIPNAME");
-            String TYPE_NAME = element.getAttribute("TYPE_NAME");
-            double LAT = Double.parseDouble(element.getAttribute("LAT"));
-            double LON = Double.parseDouble(element.getAttribute("LON"));
+        Bundle map_type = getIntent().getExtras();
+        Log.e("map_type", map_type.getString("map_type"));
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+        if(map_type.getString("map_type").equals("ALL")) {
+            for (int i = 0; i < test.readxml(test.filename).getLength(); i++) {
+                Element element = (Element) test.readxml(test.filename).item(i);
+                String SHIPNAME = element.getAttribute("SHIPNAME");
+                String TYPE_NAME = element.getAttribute("TYPE_NAME");
+                double LAT = Double.parseDouble(element.getAttribute("LAT"));
+                double LON = Double.parseDouble(element.getAttribute("LON"));
+                LatLng vessel = new LatLng(LAT, LON);
+                mMap.addMarker(new MarkerOptions().position(vessel).title(SHIPNAME).snippet(TYPE_NAME).icon(BitmapDescriptorFactory.fromResource(R.drawable.photo)));
+                builder.include(vessel);
+            }
+            LatLngBounds bounds = builder.build();
+
+            int width = getResources().getDisplayMetrics().widthPixels;
+            int height = getResources().getDisplayMetrics().heightPixels;
+            int padding = (int) (width * 0.12); // offset from edges of the map 12% of screen
+
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+            mMap.animateCamera(cu);
+        } else {
+            double LAT = Double.parseDouble(map_type.getString("LAT"));
+            double LON = Double.parseDouble(map_type.getString("LON"));
             LatLng vessel = new LatLng(LAT, LON);
-            mMap.addMarker(new MarkerOptions().position(vessel).title(SHIPNAME)).setSnippet(TYPE_NAME);
+            mMap.addMarker(new MarkerOptions().position(vessel).title(map_type.getString("SHIPNAME")).snippet(map_type.getString("SHIP_TYPE")).icon(BitmapDescriptorFactory.fromResource(R.drawable.photo)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(vessel));
+            float MAP_ZOOM_MAX = mMap.getMaxZoomLevel()-15;
+            Log.e("zoom", String.valueOf(MAP_ZOOM_MAX));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(vessel, MAP_ZOOM_MAX));
         }
-        LatLng PLSZZ = new LatLng(53.441, 14.595);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(PLSZZ));
     }
 }

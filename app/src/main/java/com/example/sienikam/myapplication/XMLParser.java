@@ -10,6 +10,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -22,15 +23,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * Created by sienikam on 2015-12-22.
  */
 public class XMLParser extends AsyncTask {
-    String xml_data_url;
-    public NodeList getXmlFromUrl(String xml_data_url) {
+    String filename;
+    public NodeList readxml(String filename) {
         try {
-            URL url = new URL(xml_data_url);
-            URLConnection conn = url.openConnection();
+            //URL url = new URL(xml_data_url);
+            //URLConnection conn = url.openConnection();
 
+            File xml = new File(filename);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(conn.getInputStream());
+            Document doc = builder.parse(xml);
 
             NodeList nodes = doc.getElementsByTagName("VESSEL_ETA");
             return nodes;
