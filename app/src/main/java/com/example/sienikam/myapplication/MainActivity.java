@@ -75,10 +75,19 @@ public class MainActivity extends AppCompatActivity {
                 String LON = element.getAttribute("LON");
                 String SHIPNAME = element.getAttribute("SHIPNAME");
                 String TYPE_NAME = element.getAttribute("TYPE_NAME");
+                String ETA_CALC = element.getAttribute("ETA_CALC");
+                String SPEED = element.getAttribute("SPEED");
+                String LAST_PORT = element.getAttribute("LAST_PORT");
+                if(ETA_CALC.equals("")) {
+                    ETA_CALC = "Unknown";
+                }
                 i.putExtra("LAT", LAT);
                 i.putExtra("LON", LON);
                 i.putExtra("SHIPNAME", SHIPNAME);
                 i.putExtra("SHIP_TYPE", TYPE_NAME);
+                i.putExtra("ETA_CALC", ETA_CALC);
+                i.putExtra("SPEED", SPEED);
+                i.putExtra("LAST_PORT", LAST_PORT);
                 //Toast.makeText(getApplicationContext(), String.valueOf(LAT), Toast.LENGTH_SHORT).show();
                 startActivity(i);
             }
@@ -101,48 +110,31 @@ public class MainActivity extends AppCompatActivity {
             try {
                 URL url = new URL(url_xml);
 
-                //create the new connection
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
                 urlConnection.connect();
 
-                //set the path where we want to save the file
-                //in this case, going to save it on the root directory of the
-                //sd card.
                 File SDCardRoot = Environment.getDataDirectory();
-                //create a new file, specifying the path, and the filename
-                //which we want to save the file as.
+
                 File file = new File(SDCardRoot,"/data/com.example.sienikam.myapplication/ships.xml");
 
-                //this will be used to write the downloaded data into the file we created
                 FileOutputStream fileOutput = new FileOutputStream(file);
 
-                //this will be used in reading the data from the internet
                 InputStream inputStream = urlConnection.getInputStream();
 
-                //this is the total size of the file
                 int totalSize = urlConnection.getContentLength();
-                //progressDialog.setMax(totalSize);
 
-                //variable to store total downloaded bytes
                 int downloadedSize = 0;
 
-                //create a buffer...
                 byte[] buffer = new byte[1024];
-                int bufferLength = 0; //used to store a temporary size of the buffer
+                int bufferLength = 0;
 
-                //now, read through the input buffer and write the contents to the file
                 while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
-                    //add the data in the buffer to the file in the file output stream (the file on the sd card
                     fileOutput.write(buffer, 0, bufferLength);
-                    //add up the size so we know how much is downloaded
                     downloadedSize += bufferLength;
-                    //Log.e("size", String.valueOf(downloadedSize));
                 }
 
-                //close the output stream when done
                 fileOutput.close();
-                //catch some possible errors...
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {

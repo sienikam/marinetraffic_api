@@ -1,8 +1,15 @@
 package com.example.sienikam.myapplication;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -13,6 +20,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.w3c.dom.Element;
@@ -33,7 +41,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -46,6 +53,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+
+                Context context = getApplicationContext();
+
+                LinearLayout info = new LinearLayout(context);
+                info.setOrientation(LinearLayout.VERTICAL);
+
+                TextView title = new TextView(context);
+                title.setTextColor(Color.BLACK);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+
+                TextView snippet = new TextView(context);
+                snippet.setTextColor(Color.GRAY);
+                snippet.setText(marker.getSnippet());
+
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
+            }
+        });
 
         XMLParser test = new XMLParser();
         test.filename="/data/data/com.example.sienikam.myapplication/ships.xml";
@@ -60,10 +99,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Element element = (Element) test.readxml(test.filename).item(i);
                 String SHIPNAME = element.getAttribute("SHIPNAME");
                 String TYPE_NAME = element.getAttribute("TYPE_NAME");
+                String ETA_CALC = element.getAttribute("ETA_CALC");
+                String SPEED = element.getAttribute("SPEED");
+                String LAST_PORT = element.getAttribute("LAST_PORT");
+                if(ETA_CALC.equals("")) {
+                    ETA_CALC = "Unknown";
+                }
                 double LAT = Double.parseDouble(element.getAttribute("LAT"));
                 double LON = Double.parseDouble(element.getAttribute("LON"));
                 LatLng vessel = new LatLng(LAT, LON);
-                mMap.addMarker(new MarkerOptions().position(vessel).title(SHIPNAME).snippet(TYPE_NAME).icon(BitmapDescriptorFactory.fromResource(R.drawable.photo)));
+                mMap.addMarker(new MarkerOptions().position(vessel).title(SHIPNAME).snippet("Vessel type: " + TYPE_NAME + "\n" + "Last port: " + LAST_PORT + "\n" + "ETA PLSZZ: " + ETA_CALC + "\n" + "Speed: " + SPEED).icon(BitmapDescriptorFactory.fromResource(R.drawable.photo))).showInfoWindow();
                 builder.include(vessel);
             }
             LatLngBounds bounds = builder.build();
@@ -77,8 +122,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             double LAT = Double.parseDouble(map_type.getString("LAT"));
             double LON = Double.parseDouble(map_type.getString("LON"));
+            String SHIPNAME = map_type.getString("SHIPNAME");
+            String TYPE_NAME = map_type.getString("SHIP_TYPE");
+            String ETA_CALC = map_type.getString("ETA_CALC");
+            String SPEED = map_type.getString("SPEED");
+            String LAST_PORT = map_type.getString("LAST_PORT");
             LatLng vessel = new LatLng(LAT, LON);
-            mMap.addMarker(new MarkerOptions().position(vessel).title(map_type.getString("SHIPNAME")).snippet(map_type.getString("SHIP_TYPE")).icon(BitmapDescriptorFactory.fromResource(R.drawable.photo)));
+            mMap.addMarker(new MarkerOptions().position(vessel).title(SHIPNAME).snippet("Vessel type: " + TYPE_NAME + "\n" + "Last port: " + LAST_PORT + "\n" + "ETA PLSZZ: " + ETA_CALC + "\n" + "Speed: " + SPEED).icon(BitmapDescriptorFactory.fromResource(R.drawable.photo))).showInfoWindow();
             mMap.moveCamera(CameraUpdateFactory.newLatLng(vessel));
             float MAP_ZOOM_MAX = mMap.getMaxZoomLevel()-15;
             Log.e("zoom", String.valueOf(MAP_ZOOM_MAX));
